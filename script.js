@@ -1,13 +1,13 @@
-var KEY = "myShoppingList.v1";
+var KEY = 'myShoppingList.v1';
 
 var CATS = [
-    "Makanan dan Minuman",
-    "Kebutuhan Dapur",
-    "Perlengkapan Mandi",
-    "Perawatan Tubuh",
-    "Perlengkapan Rumah",
-    "Kebutuhan Pribadi",
-    "Lainnya"
+    'Makanan dan Minuman',
+    'Kebutuhan Dapur',
+    'Perlengkapan Mandi',
+    'Perawatan Tubuh',
+    'Perlengkapan Rumah',
+    'Kebutuhan Pribadi',
+    'Lainnya'
 ];
 
 var db = {
@@ -15,14 +15,14 @@ var db = {
 };
 
 var state = {
-    page: "dash",
+    page: 'dash',
     openId: null,
-    q: "",
-    from: "",
-    to: ""
+    q: '',
+    from: '',
+    to: ''
 };
 
-// Memuat data dari localStorage
+// Mengambil data dari localStorage
 try {
     var raw = localStorage.getItem(KEY);
 
@@ -30,237 +30,252 @@ try {
         db = JSON.parse(raw);
     }
 } catch (e) {
-    console.log("Data belum tersedia.");
+    // Data gagal dibaca.
 }
 
+// Menyimpan data ke localStorage
 function save() {
     try {
         localStorage.setItem(KEY, JSON.stringify(db));
     } catch (e) {
-        console.log("Data gagal disimpan.");
+        // Penyimpanan gagal.
     }
 }
 
+// Membuat ID unik
 function uid() {
-    return Date.now().toString(36) +
-        Math.random().toString(36).slice(2, 7);
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+// Mengambil tanggal hari ini
 function today() {
     var d = new Date();
-    var year = d.getFullYear();
-    var month = String(d.getMonth() + 1).padStart(2, "0");
-    var day = String(d.getDate()).padStart(2, "0");
 
-    return year + "-" + month + "-" + day;
+    return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
 }
 
-// Fungsi bantuan
-function rp(n) {
-    return "Rp" + Math.round(n).toLocaleString("id-ID");
-}
 
+// ========================================
+// FUNGSI BANTU
+// ========================================
+
+// Format Rupiah
+var rp = function (n) {
+    return 'Rp' + Math.round(n).toLocaleString('id-ID');
+};
+
+// Mengamankan teks HTML
 function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
         return {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
         }[c];
     });
 }
 
+// Format tanggal Indonesia
 function fdate(s) {
     if (!s) {
-        return "-";
+        return '-';
     }
 
-    var d = new Date(s + "T00:00:00");
+    var d = new Date(s + 'T00:00:00');
 
-    return d.toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
+    return d.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
     });
 }
 
-function sub(item) {
-    return item.price * item.qty;
+// Menghitung subtotal
+function sub(i) {
+    return i.price * i.qty;
 }
 
-function stats(list) {
-    var result = {
-        n: list.items.length,
+// Menghitung statistik daftar belanja
+function stats(l) {
+    var r = {
+        n: l.items.length,
         done: 0,
         total: 0,
         doneTotal: 0
     };
 
-    list.items.forEach(function (item) {
-        result.total += sub(item);
+    l.items.forEach(function (i) {
+        r.total += sub(i);
 
-        if (item.done) {
-            result.done++;
-            result.doneTotal += sub(item);
+        if (i.done) {
+            r.done++;
+            r.doneTotal += sub(i);
         }
     });
 
-    result.left = result.n - result.done;
-    result.leftTotal = result.total - result.doneTotal;
-    result.pct = result.n
-        ? Math.round(result.done / result.n * 100)
-        : 0;
+    r.left = r.n - r.done;
+    r.leftTotal = r.total - r.doneTotal;
+    r.pct = r.n ? Math.round(r.done / r.n * 100) : 0;
 
-    return result;
+    return r;
 }
 
-function toast(message) {
-    var t = document.getElementById("toast");
+// Menampilkan notifikasi
+function toast(m) {
+    var t = document.getElementById('toast');
 
-    t.textContent = message;
-    t.className = "show";
+    t.textContent = m;
+    t.className = 'show';
 
     clearTimeout(toast.t);
 
     toast.t = setTimeout(function () {
-        t.className = "";
+        t.className = '';
     }, 2200);
 }
 
+// Mencari daftar berdasarkan ID
 function find(id) {
-    return db.lists.filter(function (list) {
-        return list.id === id;
+    return db.lists.filter(function (l) {
+        return l.id === id;
     })[0];
 }
 
-function go(page, id) {
-    state.page = page;
+// Berpindah halaman
+function go(p, id) {
+    state.page = p;
     state.openId = id || null;
 
     render();
     window.scrollTo(0, 0);
 }
 
-// Modal
+
+// ========================================
+// MODAL DAN KONFIRMASI
+// ========================================
+
 function closeModal() {
-    document.getElementById("modal").innerHTML = "";
+    document.getElementById('modal').innerHTML = '';
 }
 
 function openModal(html) {
-    document.getElementById("modal").innerHTML =
-        '<div class="modal"><div class="box">' +
-        html +
-        "</div></div>";
+    document.getElementById('modal').innerHTML =
+        '<div class="modal">' +
+            '<div class="box">' + html + '</div>' +
+        '</div>';
 }
 
-function confirmBox(message, callback) {
+// Konfirmasi penghapusan
+function confirmBox(msg, ok) {
     openModal(
-        "<h3>Konfirmasi</h3>" +
-        "<p>" + esc(message) + "</p>" +
+        '<h3>Konfirmasi</h3>' +
+        '<p>' + esc(msg) + '</p>' +
         '<div class="acts">' +
-        '<button class="btn alt" id="cn">Batal</button>' +
-        '<button class="btn del" id="cy">Hapus</button>' +
-        "</div>"
+            '<button class="btn alt" id="cn">Batal</button>' +
+            '<button class="btn del" id="cy">Hapus</button>' +
+        '</div>'
     );
 
-    document.getElementById("cn").onclick = closeModal;
+    document.getElementById('cn').onclick = closeModal;
 
-    document.getElementById("cy").onclick = function () {
+    document.getElementById('cy').onclick = function () {
         closeModal();
-        callback();
+        ok();
     };
 }
 
-// Form daftar belanja
+
+// ========================================
+// FORM DAFTAR BELANJA
+// ========================================
+
 function listForm(id) {
-    var list = id ? find(id) : {
-        name: "",
+    var l = id ? find(id) : {
+        name: '',
         date: today(),
-        store: "",
-        note: ""
+        store: '',
+        note: ''
     };
 
     openModal(
-        "<h3>" + (id ? "Edit" : "Buat") +
-        " Daftar Belanja</h3><br>" +
-
+        '<h3>' + (id ? 'Edit' : 'Buat') + ' Daftar Belanja</h3><br>' +
         '<form id="lf">' +
+
             '<div class="f">' +
-                "<label>Nama daftar *</label>" +
-                '<input name="name" value="' + esc(list.name) +
-                '" placeholder="Belanja Bulanan">' +
-            "</div>" +
+                '<label>Nama daftar *</label>' +
+                '<input name="name" value="' + esc(l.name) + '" placeholder="Belanja Bulanan">' +
+            '</div>' +
 
             '<div class="two">' +
                 '<div class="f">' +
-                    "<label>Tanggal belanja *</label>" +
-                    '<input type="date" name="date" value="' +
-                    esc(list.date) + '">' +
-                "</div>" +
+                    '<label>Tanggal belanja *</label>' +
+                    '<input type="date" name="date" value="' + esc(l.date) + '">' +
+                '</div>' +
 
                 '<div class="f">' +
-                    "<label>Tempat (opsional)</label>" +
-                    '<input name="store" value="' +
-                    esc(list.store) + '" placeholder="Supermarket">' +
-                "</div>" +
-            "</div>" +
+                    '<label>Tempat (opsional)</label>' +
+                    '<input name="store" value="' + esc(l.store) + '" placeholder="Supermarket">' +
+                '</div>' +
+            '</div>' +
 
             '<div class="f">' +
-                "<label>Catatan (opsional)</label>" +
-                '<textarea name="note" rows="2">' +
-                esc(list.note) + "</textarea>" +
-            "</div>" +
+                '<label>Catatan (opsional)</label>' +
+                '<textarea name="note" rows="2">' + esc(l.note) + '</textarea>' +
+            '</div>' +
 
             '<div class="err" id="er"></div>' +
 
             '<div class="acts">' +
-                '<button type="button" class="btn alt" id="cn">' +
-                "Batal</button>" +
+                '<button type="button" class="btn alt" id="cn">Batal</button>' +
                 '<button class="btn" type="submit">Simpan</button>' +
-            "</div>" +
-        "</form>"
+            '</div>' +
+
+        '</form>'
     );
 
-    document.getElementById("cn").onclick = closeModal;
+    document.getElementById('cn').onclick = closeModal;
 
-    document.getElementById("lf").onsubmit = function (e) {
+    document.getElementById('lf').onsubmit = function (e) {
         e.preventDefault();
 
-        var form = e.target;
-        var name = form.name.value.trim();
-        var date = form.date.value;
+        var f = e.target;
+        var name = f.name.value.trim();
+        var date = f.date.value;
 
         if (!name || !date) {
-            document.getElementById("er").textContent =
-                "Nama dan tanggal wajib diisi.";
+            document.getElementById('er').textContent =
+                'Nama dan tanggal wajib diisi.';
             return;
         }
 
         if (id) {
-            list.name = name;
-            list.date = date;
-            list.store = form.store.value.trim();
-            list.note = form.note.value.trim();
+            l.name = name;
+            l.date = date;
+            l.store = f.store.value.trim();
+            l.note = f.note.value.trim();
 
-            toast("Daftar diperbarui");
+            toast('Daftar diperbarui');
         } else {
-            var newList = {
+            var n = {
                 id: uid(),
                 name: name,
                 date: date,
-                store: form.store.value.trim(),
-                note: form.note.value.trim(),
+                store: f.store.value.trim(),
+                note: f.note.value.trim(),
                 items: []
             };
 
-            db.lists.push(newList);
+            db.lists.push(n);
 
-            state.openId = newList.id;
-            state.page = "detail";
+            toast('Daftar dibuat');
 
-            toast("Daftar dibuat");
+            state.openId = n.id;
+            state.page = 'detail';
         }
 
         save();
@@ -269,121 +284,119 @@ function listForm(id) {
     };
 }
 
-// Form barang
-function itemForm(listId, itemId) {
-    var list = find(listId);
 
-    var item = itemId
-        ? list.items.filter(function (x) {
-            return x.id === itemId;
+// ========================================
+// FORM BARANG
+// ========================================
+
+function itemForm(lid, iid) {
+    var l = find(lid);
+
+    var it = iid
+        ? l.items.filter(function (x) {
+            return x.id === iid;
         })[0]
         : {
-            name: "",
+            name: '',
             cat: CATS[0],
-            price: "",
+            price: '',
             qty: 1,
-            note: ""
+            note: ''
         };
 
-    var options = CATS.map(function (category) {
-        return "<option" +
-            (category === item.cat ? " selected" : "") +
-            ">" + category + "</option>";
-    }).join("");
-
     openModal(
-        "<h3>" + (itemId ? "Edit" : "Tambah") +
-        " Barang</h3><br>" +
-
+        '<h3>' + (iid ? 'Edit' : 'Tambah') + ' Barang</h3><br>' +
         '<form id="if">' +
-            '<div class="f">' +
-                "<label>Nama barang *</label>" +
-                '<input name="name" value="' + esc(item.name) + '">' +
-            "</div>" +
 
             '<div class="f">' +
-                "<label>Kategori</label>" +
-                '<select name="cat">' + options + "</select>" +
-            "</div>" +
+                '<label>Nama barang *</label>' +
+                '<input name="name" value="' + esc(it.name) + '">' +
+            '</div>' +
+
+            '<div class="f">' +
+                '<label>Kategori</label>' +
+                '<select name="cat">' +
+                    CATS.map(function (c) {
+                        return '<option' +
+                            (c === it.cat ? ' selected' : '') +
+                            '>' + c + '</option>';
+                    }).join('') +
+                '</select>' +
+            '</div>' +
 
             '<div class="two">' +
                 '<div class="f">' +
-                    "<label>Harga satuan (Rp) *</label>" +
-                    '<input type="number" name="price" min="0" ' +
-                    'step="any" inputmode="numeric" value="' +
-                    esc(item.price) + '">' +
-                "</div>" +
+                    '<label>Harga satuan (Rp) *</label>' +
+                    '<input type="number" name="price" min="0" step="any" inputmode="numeric" value="' + esc(it.price) + '">' +
+                '</div>' +
 
                 '<div class="f">' +
-                    "<label>Jumlah *</label>" +
-                    '<input type="number" name="qty" min="1" ' +
-                    'step="1" inputmode="numeric" value="' +
-                    esc(item.qty) + '">' +
-                "</div>" +
-            "</div>" +
+                    '<label>Jumlah *</label>' +
+                    '<input type="number" name="qty" min="1" step="1" inputmode="numeric" value="' + esc(it.qty) + '">' +
+                '</div>' +
+            '</div>' +
 
             '<div class="f">' +
-                "<label>Catatan (opsional)</label>" +
-                '<input name="note" value="' + esc(item.note) + '">' +
-            "</div>" +
+                '<label>Catatan (opsional)</label>' +
+                '<input name="note" value="' + esc(it.note) + '">' +
+            '</div>' +
 
             '<div class="err" id="er"></div>' +
 
             '<div class="acts">' +
-                '<button type="button" class="btn alt" id="cn">' +
-                "Batal</button>" +
+                '<button type="button" class="btn alt" id="cn">Batal</button>' +
                 '<button class="btn" type="submit">Simpan</button>' +
-            "</div>" +
-        "</form>"
+            '</div>' +
+
+        '</form>'
     );
 
-    document.getElementById("cn").onclick = closeModal;
+    document.getElementById('cn').onclick = closeModal;
 
-    document.getElementById("if").onsubmit = function (e) {
+    document.getElementById('if').onsubmit = function (e) {
         e.preventDefault();
 
-        var form = e.target;
-        var name = form.name.value.trim();
-        var price = parseFloat(form.price.value);
-        var qty = parseInt(form.qty.value, 10);
-        var error = document.getElementById("er");
+        var f = e.target;
+        var name = f.name.value.trim();
+        var price = parseFloat(f.price.value);
+        var qty = parseInt(f.qty.value, 10);
+        var er = document.getElementById('er');
 
         if (!name) {
-            error.textContent = "Nama barang wajib diisi.";
+            er.textContent = 'Nama barang wajib diisi.';
             return;
         }
 
         if (isNaN(price) || price < 0) {
-            error.textContent =
-                "Harga tidak boleh kosong atau negatif.";
+            er.textContent = 'Harga tidak boleh kosong atau negatif.';
             return;
         }
 
         if (isNaN(qty) || qty < 1) {
-            error.textContent = "Jumlah harus lebih dari nol.";
+            er.textContent = 'Jumlah harus lebih dari nol.';
             return;
         }
 
-        if (itemId) {
-            item.name = name;
-            item.cat = form.cat.value;
-            item.price = price;
-            item.qty = qty;
-            item.note = form.note.value.trim();
+        if (iid) {
+            it.name = name;
+            it.cat = f.cat.value;
+            it.price = price;
+            it.qty = qty;
+            it.note = f.note.value.trim();
 
-            toast("Barang diperbarui");
+            toast('Barang diperbarui');
         } else {
-            list.items.push({
+            l.items.push({
                 id: uid(),
                 name: name,
-                cat: form.cat.value,
+                cat: f.cat.value,
                 price: price,
                 qty: qty,
-                note: form.note.value.trim(),
+                note: f.note.value.trim(),
                 done: false
             });
 
-            toast("Barang ditambahkan");
+            toast('Barang ditambahkan');
         }
 
         save();
@@ -392,131 +405,148 @@ function itemForm(listId, itemId) {
     };
 }
 
-// Aksi barang dan daftar
-function toggle(listId, itemId) {
-    var item = find(listId).items.filter(function (x) {
-        return x.id === itemId;
+
+// ========================================
+// AKSI DATA
+// ========================================
+
+// Menandai barang sudah atau belum masuk troli
+function toggle(lid, iid) {
+    var i = find(lid).items.filter(function (x) {
+        return x.id === iid;
     })[0];
 
-    item.done = !item.done;
+    i.done = !i.done;
 
     save();
     render();
 }
 
-function delItem(listId, itemId) {
-    confirmBox("Hapus barang ini?", function () {
-        var list = find(listId);
+// Menghapus barang
+function delItem(lid, iid) {
+    confirmBox('Hapus barang ini?', function () {
+        var l = find(lid);
 
-        list.items = list.items.filter(function (item) {
-            return item.id !== itemId;
+        l.items = l.items.filter(function (x) {
+            return x.id !== iid;
         });
 
         save();
-        toast("Barang dihapus");
+        toast('Barang dihapus');
         render();
     });
 }
 
-function delList(listId) {
-    confirmBox(
-        "Hapus daftar belanja beserta semua barangnya?",
-        function () {
-            db.lists = db.lists.filter(function (list) {
-                return list.id !== listId;
-            });
+// Menghapus daftar belanja
+function delList(lid) {
+    confirmBox('Hapus daftar belanja beserta semua barangnya?', function () {
+        db.lists = db.lists.filter(function (x) {
+            return x.id !== lid;
+        });
 
-            save();
-            toast("Daftar dihapus");
-            go("lists");
-        }
-    );
+        save();
+        toast('Daftar dihapus');
+        go('lists');
+    });
 }
 
-function copyList(listId) {
-    var list = find(listId);
-    var newList = JSON.parse(JSON.stringify(list));
+// Menyalin daftar belanja
+function copyList(lid) {
+    var l = find(lid);
+    var n = JSON.parse(JSON.stringify(l));
 
-    newList.id = uid();
-    newList.name = list.name + " (Salinan)";
-    newList.date = today();
+    n.id = uid();
+    n.name = l.name + ' (Salinan)';
+    n.date = today();
 
-    newList.items.forEach(function (item) {
-        item.id = uid();
-        item.done = false;
+    n.items.forEach(function (i) {
+        i.id = uid();
+        i.done = false;
     });
 
-    db.lists.push(newList);
+    db.lists.push(n);
 
     save();
-    toast("Daftar disalin");
-    go("detail", newList.id);
+    toast('Daftar disalin');
+    go('detail', n.id);
 }
 
-// Kartu daftar belanja
-function listCard(list) {
-    var s = stats(list);
-    var isDone = s.n && s.pct === 100;
 
-    return '<div class="card list-card" ' +
-        'onclick="go(\'detail\',\'' + list.id + '\')">' +
+// ========================================
+// KOMPONEN TAMPILAN
+// ========================================
+
+// Membuat kartu daftar belanja
+function listCard(l) {
+    var s = stats(l);
+
+    return '<div class="card list-card" onclick="go(\\'detail\\',\\'' + l.id + '\\')">' +
 
         '<div class="row" style="justify-content:space-between">' +
-            "<h3>" + esc(list.name) + "</h3>" +
-            '<span class="tag' + (isDone ? " ok" : "") + '">' +
-                (isDone ? "Selesai" : "Berjalan") +
-            "</span>" +
-        "</div>" +
+            '<h3>' + esc(l.name) + '</h3>' +
+            '<span class="tag' + (s.n && s.pct === 100 ? ' ok' : '') + '">' +
+                (s.n && s.pct === 100 ? 'Selesai' : 'Berjalan') +
+            '</span>' +
+        '</div>' +
 
-        '<div class="sub">' + fdate(list.date) +
-            (list.store ? " · " + esc(list.store) : "") +
-        "</div>" +
+        '<div class="sub">' +
+            fdate(l.date) +
+            (l.store ? ' · ' + esc(l.store) : '') +
+        '</div>' +
 
-        '<div class="bar"><i style="width:' + s.pct + '%"></i></div>' +
+        '<div class="bar">' +
+            '<i style="width:' + s.pct + '%"></i>' +
+        '</div>' +
 
-        '<div class="sub">' + s.done + "/" + s.n +
-        " barang · " + s.pct + "%</div>" +
+        '<div class="sub">' +
+            s.done + '/' + s.n + ' barang · ' + s.pct + '%' +
+        '</div>' +
 
-        '<div style="margin-top:8px"><b>' +
-        rp(s.total) + "</b></div>" +
+        '<div style="margin-top:8px">' +
+            '<b>' + rp(s.total) + '</b>' +
+        '</div>' +
 
-    "</div>";
+    '</div>';
 }
 
-function emptyBox(message) {
+// Tampilan ketika belum ada data
+function emptyBox(msg) {
     return '<div class="card empty">' +
         '<div class="em">🧺</div>' +
-        "<p>" + message + "</p>" +
-        '<button class="btn" onclick="listForm()">' +
-        "Buat Daftar Belanja</button>" +
-    "</div>";
+        '<p>' + msg + '</p>' +
+        '<button class="btn" onclick="listForm()">Buat Daftar Belanja</button>' +
+    '</div>';
 }
 
-// Dashboard
+
+// ========================================
+// HALAMAN DASHBOARD
+// ========================================
+
 function vDash() {
-    var total = {
+    var tot = {
         n: 0,
         done: 0,
         total: 0
     };
 
-    db.lists.forEach(function (list) {
-        var s = stats(list);
+    db.lists.forEach(function (l) {
+        var s = stats(l);
 
-        total.n += s.n;
-        total.done += s.done;
-        total.total += s.total;
+        tot.n += s.n;
+        tot.done += s.done;
+        tot.total += s.total;
     });
 
-    var hour = new Date().getHours();
+    var h = new Date().getHours();
 
-    var greeting = hour < 11
-        ? "Selamat pagi"
-        : hour < 15
-            ? "Selamat siang"
-            : hour < 18
-                ? "Selamat sore"
-                : "Selamat malam";
+    var g = h < 11
+        ? 'Selamat pagi'
+        : h < 15
+            ? 'Selamat siang'
+            : h < 18
+                ? 'Selamat sore'
+                : 'Selamat malam';
 
     var recent = db.lists.slice()
         .sort(function (a, b) {
@@ -525,316 +555,304 @@ function vDash() {
         .slice(0, 3);
 
     return '<div class="top">' +
-        "<div>" +
-            "<h1>" + greeting + " 👋</h1>" +
+        '<div>' +
+            '<h1>' + g + ' 👋</h1>' +
             '<div class="sub">' +
-                new Date().toLocaleDateString("id-ID", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric"
+                new Date().toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
                 }) +
-            "</div>" +
-        "</div>" +
+            '</div>' +
+        '</div>' +
 
-        '<button class="btn" onclick="listForm()">' +
-        "＋ Buat Daftar Belanja</button>" +
-    "</div>" +
+        '<button class="btn" onclick="listForm()">＋ Buat Daftar Belanja</button>' +
+    '</div>' +
 
     '<div class="grid">' +
-        '<div class="card stat"><span>Daftar belanja</span>' +
-        "<b>" + db.lists.length + "</b></div>" +
+        '<div class="card stat">' +
+            '<span>Daftar belanja</span>' +
+            '<b>' + db.lists.length + '</b>' +
+        '</div>' +
 
-        '<div class="card stat"><span>Total barang</span>' +
-        "<b>" + total.n + "</b></div>" +
+        '<div class="card stat">' +
+            '<span>Total barang</span>' +
+            '<b>' + tot.n + '</b>' +
+        '</div>' +
 
-        '<div class="card stat"><span>Sudah di troli</span>' +
-        "<b>" + total.done + "</b></div>" +
+        '<div class="card stat">' +
+            '<span>Sudah di troli</span>' +
+            '<b>' + tot.done + '</b>' +
+        '</div>' +
 
-        '<div class="card stat"><span>Belum di troli</span>' +
-        "<b>" + (total.n - total.done) + "</b></div>" +
+        '<div class="card stat">' +
+            '<span>Belum di troli</span>' +
+            '<b>' + (tot.n - tot.done) + '</b>' +
+        '</div>' +
 
-        '<div class="card stat dark"><span>Total estimasi</span>' +
-        "<b>" + rp(total.total) + "</b></div>" +
-    "</div>" +
+        '<div class="card stat dark">' +
+            '<span>Total estimasi</span>' +
+            '<b>' + rp(tot.total) + '</b>' +
+        '</div>' +
+    '</div>' +
 
     '<h2 style="margin-bottom:12px">Daftar Terbaru</h2>' +
 
-    (recent.length
-        ? '<div class="lists">' +
-            recent.map(listCard).join("") +
-          "</div>"
-        : emptyBox("Belum ada daftar belanja. Yuk buat yang pertama!"));
+    (
+        recent.length
+            ? '<div class="lists">' + recent.map(listCard).join('') + '</div>'
+            : emptyBox('Belum ada daftar belanja. Yuk buat yang pertama!')
+    );
 }
 
-// Halaman daftar belanja
+
+// ========================================
+// HALAMAN DAFTAR BELANJA
+// ========================================
+
 function vLists() {
-    var lists = db.lists.slice().sort(function (a, b) {
+    var ls = db.lists.slice().sort(function (a, b) {
         return b.date.localeCompare(a.date);
     });
 
     return '<div class="top">' +
-        "<div>" +
-            "<h1>Daftar Belanja</h1>" +
+        '<div>' +
+            '<h1>Daftar Belanja</h1>' +
             '<div class="sub">Semua daftar belanja kamu</div>' +
-        "</div>" +
+        '</div>' +
 
-        '<button class="btn" onclick="listForm()">' +
-        "＋ Tambah Daftar</button>" +
-    "</div>" +
+        '<button class="btn" onclick="listForm()">＋ Tambah Daftar</button>' +
+    '</div>' +
 
-    (lists.length
-        ? '<div class="lists">' +
-            lists.map(listCard).join("") +
-          "</div>"
-        : emptyBox("Belum ada daftar belanja."));
+    (
+        ls.length
+            ? '<div class="lists">' + ls.map(listCard).join('') + '</div>'
+            : emptyBox('Belum ada daftar belanja.')
+    );
 }
 
-// Tampilan barang
-function itemRow(list, item) {
-    return '<div class="item' +
-        (item.done ? " done" : "") + '">' +
 
-        '<input type="checkbox" class="chk" ' +
-        'aria-label="Tandai ' + esc(item.name) + '"' +
-        (item.done ? " checked" : "") +
-        ' onchange="toggle(\'' + list.id + "','" +
-        item.id + '\')">' +
+// ========================================
+// BARIS ITEM BARANG
+// ========================================
+
+function itemRow(l, i) {
+    return '<div class="item' + (i.done ? ' done' : '') + '">' +
+
+        '<input type="checkbox" class="chk" aria-label="Tandai ' + esc(i.name) + '"' +
+            (i.done ? ' checked' : '') +
+            ' onchange="toggle(\\'' + l.id + '\\',\\'' + i.id + '\\')">' +
 
         '<div class="info">' +
-            '<div class="nm">' + esc(item.name) + "</div>" +
-            '<div class="cat">' + esc(item.cat) +
-                (item.note ? " · " + esc(item.note) : "") +
-            "</div>" +
-        "</div>" +
+            '<div class="nm">' + esc(i.name) + '</div>' +
+            '<div class="cat">' +
+                esc(i.cat) +
+                (i.note ? ' · ' + esc(i.note) : '') +
+            '</div>' +
+        '</div>' +
 
         '<div class="price">' +
-            item.qty + " × " + rp(item.price) +
-            "<br><b>" + rp(sub(item)) + "</b>" +
-        "</div>" +
+            i.qty + ' × ' + rp(i.price) +
+            '<br><b>' + rp(sub(i)) + '</b>' +
+        '</div>' +
 
         '<div class="row" style="gap:6px">' +
-            '<button class="btn alt sm" aria-label="Edit" ' +
-            'onclick="itemForm(\'' + list.id + "','" +
-            item.id + '\')">✏️</button>' +
+            '<button class="btn alt sm" aria-label="Edit" onclick="itemForm(\\'' + l.id + '\\',\\'' + i.id + '\\')">✏️</button>' +
+            '<button class="btn alt sm" aria-label="Hapus" onclick="delItem(\\'' + l.id + '\\',\\'' + i.id + '\\')">🗑️</button>' +
+        '</div>' +
 
-            '<button class="btn alt sm" aria-label="Hapus" ' +
-            'onclick="delItem(\'' + list.id + "','" +
-            item.id + '\')">🗑️</button>' +
-        "</div>" +
-
-    "</div>";
+    '</div>';
 }
 
-// Detail daftar belanja
-function vDetail() {
-    var list = find(state.openId);
 
-    if (!list) {
+// ========================================
+// HALAMAN DETAIL DAFTAR
+// ========================================
+
+function vDetail() {
+    var l = find(state.openId);
+
+    if (!l) {
         return vLists();
     }
 
-    var s = stats(list);
+    var s = stats(l);
 
-    var todo = list.items.filter(function (item) {
-        return !item.done;
+    var todo = l.items.filter(function (i) {
+        return !i.done;
     });
 
-    var done = list.items.filter(function (item) {
-        return item.done;
+    var dn = l.items.filter(function (i) {
+        return i.done;
     });
 
-    return '<button class="btn alt sm" onclick="go(\'lists\')">' +
-        "← Kembali</button><br><br>" +
+    return '<button class="btn alt sm" onclick="go(\\'lists\\')">← Kembali</button><br><br>' +
 
         '<div class="top">' +
-            "<div>" +
-                "<h1>" + esc(list.name) + "</h1>" +
-
-                '<div class="sub">' + fdate(list.date) +
-                    (list.store ? " · " + esc(list.store) : "") +
-                "</div>" +
-
-                (list.note
-                    ? '<div class="sub">📝 ' +
-                        esc(list.note) + "</div>"
-                    : "") +
-            "</div>" +
+            '<div>' +
+                '<h1>' + esc(l.name) + '</h1>' +
+                '<div class="sub">' +
+                    fdate(l.date) +
+                    (l.store ? ' · ' + esc(l.store) : '') +
+                '</div>' +
+                (l.note ? '<div class="sub">📝 ' + esc(l.note) + '</div>' : '') +
+            '</div>' +
 
             '<div class="row" style="flex-wrap:wrap">' +
-                '<button class="btn alt sm" onclick="listForm(\'' +
-                list.id + '\')">Edit</button>' +
-
-                '<button class="btn alt sm" onclick="copyList(\'' +
-                list.id + '\')">Salin</button>' +
-
-                '<button class="btn del sm" onclick="delList(\'' +
-                list.id + '\')">Hapus</button>' +
-            "</div>" +
-        "</div>" +
+                '<button class="btn alt sm" onclick="listForm(\\'' + l.id + '\\')">Edit</button>' +
+                '<button class="btn alt sm" onclick="copyList(\\'' + l.id + '\\')">Salin</button>' +
+                '<button class="btn del sm" onclick="delList(\\'' + l.id + '\\')">Hapus</button>' +
+            '</div>' +
+        '</div>' +
 
         '<div class="card" style="margin-bottom:16px">' +
             '<div class="row" style="justify-content:space-between">' +
-                "<b>Progres belanja</b>" +
-                "<b>" + s.pct + "%</b>" +
-            "</div>" +
+                '<b>Progres belanja</b>' +
+                '<b>' + s.pct + '%</b>' +
+            '</div>' +
 
-            '<div class="bar"><i style="width:' +
-            s.pct + '%"></i></div>' +
+            '<div class="bar">' +
+                '<i style="width:' + s.pct + '%"></i>' +
+            '</div>' +
 
             '<div class="grid" style="margin:12px 0 0">' +
-                '<div><span class="sub">Total barang</span><br>' +
-                "<b>" + s.n + "</b></div>" +
+                '<div><span class="sub">Total barang</span><br><b>' + s.n + '</b></div>' +
+                '<div><span class="sub">Sudah di troli</span><br><b>' + s.done + '</b></div>' +
+                '<div><span class="sub">Belum di troli</span><br><b>' + s.left + '</b></div>' +
+                '<div><span class="sub">Total estimasi</span><br><b>' + rp(s.total) + '</b></div>' +
+                '<div><span class="sub">Harga di troli</span><br><b>' + rp(s.doneTotal) + '</b></div>' +
+                '<div><span class="sub">Sisa estimasi</span><br><b>' + rp(s.leftTotal) + '</b></div>' +
+            '</div>' +
+        '</div>' +
 
-                '<div><span class="sub">Sudah di troli</span><br>' +
-                "<b>" + s.done + "</b></div>" +
+        '<button class="btn" onclick="itemForm(\\'' + l.id + '\\')">＋ Tambah Barang</button>' +
 
-                '<div><span class="sub">Belum di troli</span><br>' +
-                "<b>" + s.left + "</b></div>" +
-
-                '<div><span class="sub">Total estimasi</span><br>' +
-                "<b>" + rp(s.total) + "</b></div>" +
-
-                '<div><span class="sub">Harga di troli</span><br>' +
-                "<b>" + rp(s.doneTotal) + "</b></div>" +
-
-                '<div><span class="sub">Sisa estimasi</span><br>' +
-                "<b>" + rp(s.leftTotal) + "</b></div>" +
-            "</div>" +
-        "</div>" +
-
-        '<button class="btn" onclick="itemForm(\'' +
-        list.id + '\')">＋ Tambah Barang</button>' +
-
-        '<h3 class="sec">Belum Masuk Troli (' +
-        todo.length + ")</h3>" +
-
+        '<h3 class="sec">Belum Masuk Troli (' + todo.length + ')</h3>' +
         '<div class="card">' +
-            (todo.length
-                ? todo.map(function (item) {
-                    return itemRow(list, item);
-                }).join("")
-                : '<div class="sub">Tidak ada barang tersisa.</div>') +
-        "</div>" +
+            (
+                todo.length
+                    ? todo.map(function (i) {
+                        return itemRow(l, i);
+                    }).join('')
+                    : '<div class="sub">Tidak ada barang tersisa.</div>'
+            ) +
+        '</div>' +
 
-        '<h3 class="sec">Sudah Masuk Troli (' +
-        done.length + ")</h3>" +
-
+        '<h3 class="sec">Sudah Masuk Troli (' + dn.length + ')</h3>' +
         '<div class="card">' +
-            (done.length
-                ? done.map(function (item) {
-                    return itemRow(list, item);
-                }).join("")
-                : '<div class="sub">Belum ada barang yang dicentang.</div>') +
-        "</div>";
+            (
+                dn.length
+                    ? dn.map(function (i) {
+                        return itemRow(l, i);
+                    }).join('')
+                    : '<div class="sub">Belum ada barang yang dicentang.</div>'
+            ) +
+        '</div>';
 }
 
-// Riwayat belanja
+
+// ========================================
+// HALAMAN RIWAYAT BELANJA
+// ========================================
+
 function vHist() {
     var q = state.q.toLowerCase();
 
-    var lists = db.lists.filter(function (list) {
-        var matchText = !q ||
-            list.name.toLowerCase().indexOf(q) > -1 ||
-            (list.store || "").toLowerCase().indexOf(q) > -1;
-
-        var matchFrom = !state.from || list.date >= state.from;
-        var matchTo = !state.to || list.date <= state.to;
-
-        return matchText && matchFrom && matchTo;
+    var ls = db.lists.filter(function (l) {
+        return (
+            !q ||
+            l.name.toLowerCase().indexOf(q) > -1 ||
+            (l.store || '').toLowerCase().indexOf(q) > -1
+        ) &&
+        (!state.from || l.date >= state.from) &&
+        (!state.to || l.date <= state.to);
     }).sort(function (a, b) {
         return b.date.localeCompare(a.date);
     });
 
-    var rows = lists.map(function (list) {
-        var s = stats(list);
-        var isDone = s.n && s.pct === 100;
+    var rows = ls.map(function (l) {
+        var s = stats(l);
+        var ok = s.n && s.pct === 100;
 
-        return '<tr style="cursor:pointer" onclick="go(\'detail\',\'' +
-            list.id + '\')">' +
-
-            "<td>" + esc(list.name) + "</td>" +
-            "<td>" + fdate(list.date) + "</td>" +
-            "<td>" + esc(list.store || "-") + "</td>" +
-            "<td>" + s.n + "</td>" +
-            "<td>" + rp(s.total) + "</td>" +
-
-            '<td><span class="tag' + (isDone ? " ok" : "") + '">' +
-                (isDone ? "Selesai" : s.pct + "%") +
-            "</span></td>" +
-
-        "</tr>";
-    }).join("");
+        return '<tr style="cursor:pointer" onclick="go(\\'detail\\',\\'' + l.id + '\\')">' +
+            '<td>' + esc(l.name) + '</td>' +
+            '<td>' + fdate(l.date) + '</td>' +
+            '<td>' + esc(l.store || '-') + '</td>' +
+            '<td>' + s.n + '</td>' +
+            '<td>' + rp(s.total) + '</td>' +
+            '<td><span class="tag' + (ok ? ' ok' : '') + '">' +
+                (ok ? 'Selesai' : s.pct + '%') +
+            '</span></td>' +
+        '</tr>';
+    }).join('');
 
     return '<div class="top">' +
-        "<div>" +
-            "<h1>Riwayat Belanja</h1>" +
+        '<div>' +
+            '<h1>Riwayat Belanja</h1>' +
             '<div class="sub">Klik baris untuk melihat detail</div>' +
-        "</div>" +
-    "</div>" +
+        '</div>' +
+    '</div>' +
 
     '<div class="filters">' +
-        '<input id="hq" placeholder="🔍 Cari nama daftar / toko" ' +
-        'value="' + esc(state.q) + '">' +
+        '<input id="hq" placeholder="🔍 Cari nama daftar / toko" value="' + esc(state.q) + '">' +
+        '<input type="date" id="hf" value="' + state.from + '" title="Dari tanggal">' +
+        '<input type="date" id="ht" value="' + state.to + '" title="Sampai tanggal">' +
+        '<button class="btn alt" onclick="state.q=state.from=state.to=\\'\\';render()">Reset</button>' +
+    '</div>' +
 
-        '<input type="date" id="hf" value="' + state.from +
-        '" title="Dari tanggal">' +
-
-        '<input type="date" id="ht" value="' + state.to +
-        '" title="Sampai tanggal">' +
-
-        '<button class="btn alt" onclick="state.q=state.from=state.to=\'\';render()">' +
-        "Reset</button>" +
-    "</div>" +
-
-    (lists.length
-        ? '<div class="card tw">' +
-            '<table style="width:100%;border-collapse:collapse;font-size:14px">' +
-                "<thead>" +
-                    '<tr style="text-align:left;color:var(--muted)">' +
-                        "<th>Daftar</th>" +
-                        "<th>Tanggal</th>" +
-                        "<th>Toko</th>" +
-                        "<th>Barang</th>" +
-                        "<th>Total</th>" +
-                        "<th>Status</th>" +
-                    "</tr>" +
-                "</thead>" +
-                "<tbody>" + rows + "</tbody>" +
-            "</table>" +
-          "</div>"
-        : '<div class="card empty">' +
-            '<div class="em">🕘</div>' +
-            "<p>Tidak ada riwayat yang cocok.</p>" +
-          "</div>");
+    (
+        ls.length
+            ? '<div class="card tw">' +
+                '<table style="width:100%;border-collapse:collapse;font-size:14px">' +
+                    '<thead>' +
+                        '<tr style="text-align:left;color:var(--muted)">' +
+                            '<th>Daftar</th>' +
+                            '<th>Tanggal</th>' +
+                            '<th>Toko</th>' +
+                            '<th>Barang</th>' +
+                            '<th>Total</th>' +
+                            '<th>Status</th>' +
+                        '</tr>' +
+                    '</thead>' +
+                    '<tbody>' + rows + '</tbody>' +
+                '</table>' +
+            '</div>'
+            : '<div class="card empty">' +
+                '<div class="em">🕘</div>' +
+                '<p>Tidak ada riwayat yang cocok.</p>' +
+            '</div>'
+    );
 }
 
-// Menampilkan halaman
+
+// ========================================
+// FUNGSI RENDER DAN NAVIGASI
+// ========================================
+
 function render() {
-    var page = state.page;
-    var view = document.getElementById("view");
+    var p = state.page;
+    var v = document.getElementById('view');
 
-    if (page === "dash") {
-        view.innerHTML = vDash();
-    } else if (page === "lists") {
-        view.innerHTML = vLists();
-    } else if (page === "detail") {
-        view.innerHTML = vDetail();
-    } else {
-        view.innerHTML = vHist();
-    }
+    v.innerHTML = p === 'dash'
+        ? vDash()
+        : p === 'lists'
+            ? vLists()
+            : p === 'detail'
+                ? vDetail()
+                : vHist();
 
-    document.querySelectorAll(".nav").forEach(function (button) {
-        var activePage = page === "detail" ? "lists" : page;
-
-        button.classList.toggle(
-            "on",
-            button.dataset.p === activePage
+    // Menandai menu yang sedang aktif
+    document.querySelectorAll('.nav').forEach(function (b) {
+        b.classList.toggle(
+            'on',
+            b.dataset.p === (p === 'detail' ? 'lists' : p)
         );
     });
 
-    if (page === "hist") {
-        var q = document.getElementById("hq");
+    // Mengaktifkan pencarian dan filter riwayat
+    if (p === 'hist') {
+        var q = document.getElementById('hq');
 
         q.oninput = function () {
             state.q = q.value;
@@ -843,29 +861,34 @@ function render() {
 
             render();
 
-            var newInput = document.getElementById("hq");
+            var n = document.getElementById('hq');
 
-            newInput.focus();
-            newInput.setSelectionRange(pos, pos);
+            n.focus();
+            n.setSelectionRange(pos, pos);
         };
 
-        document.getElementById("hf").onchange = function (e) {
+        document.getElementById('hf').onchange = function (e) {
             state.from = e.target.value;
             render();
         };
 
-        document.getElementById("ht").onchange = function (e) {
+        document.getElementById('ht').onchange = function (e) {
             state.to = e.target.value;
             render();
         };
     }
 }
 
-// Navigasi menu
-document.querySelectorAll(".nav").forEach(function (button) {
-    button.onclick = function () {
-        go(button.dataset.p);
+
+// ========================================
+// EVENT NAVIGASI DAN INISIALISASI
+// ========================================
+
+document.querySelectorAll('.nav').forEach(function (b) {
+    b.onclick = function () {
+        go(b.dataset.p);
     };
 });
 
+// Menampilkan halaman pertama
 render();

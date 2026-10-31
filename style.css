@@ -7,14 +7,30 @@
     --bg: #FBF7EF;
     --card: #FFFFFF;
     --text: #1C2F4D;
-    --muted: #6B7A8C;
-    --line: #EADFCE;
+    --muted: #6b7a8c;
+    --line: #eadfce;
     --shellbg: #F2CEAE;
 
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* Mode gelap */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #121c2c;
+        --card: #1b2a42;
+        --text: #f3ece1;
+        --muted: #a9b6c4;
+        --line: #2d3f5b;
+        --shellbg: #3a3340;
+    }
+}
+
+/* ========================================
+   PENGATURAN DASAR
+======================================== */
 
 * {
     box-sizing: border-box;
@@ -35,8 +51,8 @@ body {
 h1,
 h2,
 h3 {
-    margin: 0;
     font-weight: 600;
+    margin: 0;
 }
 
 button,
@@ -47,42 +63,48 @@ textarea {
     color: inherit;
 }
 
+/* ========================================
+   LAYOUT UTAMA
+======================================== */
+
 .app {
     display: flex;
     min-height: 100vh;
 }
 
+/* Sidebar */
 aside {
+    width: 230px;
+    background: var(--prus);
+    color: #FFFFFF;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    position: sticky;
-    top: 0;
-    width: 230px;
-    height: 100vh;
-    padding: 24px 16px;
-    background: var(--prus);
-    color: #FFFFFF;
 }
 
 .brand {
+    font-size: 21px;
     margin: 0 8px 22px;
     color: var(--shell);
-    font-size: 21px;
 }
 
+/* Navigasi */
 .nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    border: 0;
-    border-radius: 12px;
     background: none;
+    border: 0;
     color: var(--dust);
     text-align: left;
-    font-size: 15px;
+    padding: 12px 14px;
+    border-radius: 12px;
     cursor: pointer;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 15px;
 }
 
 .nav.on,
@@ -91,19 +113,20 @@ aside {
     color: #FFFFFF;
 }
 
+/* Area konten */
 main {
     flex: 1;
-    width: 100%;
-    max-width: 980px;
     padding: 32px;
+    max-width: 980px;
+    width: 100%;
 }
 
 .top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    flex-wrap: wrap;
     gap: 12px;
+    flex-wrap: wrap;
     margin-bottom: 22px;
 }
 
@@ -112,15 +135,19 @@ main {
     font-size: 14px;
 }
 
+/* ========================================
+   TOMBOL
+======================================== */
+
 .btn {
-    min-height: 44px;
-    padding: 11px 18px;
-    border: 0;
-    border-radius: 12px;
     background: var(--prus);
     color: #FFFFFF;
-    font-size: 14px;
+    border: 0;
+    padding: 11px 18px;
+    border-radius: 12px;
     cursor: pointer;
+    font-size: 14px;
+    min-height: 44px;
 }
 
 .btn:hover {
@@ -128,14 +155,14 @@ main {
 }
 
 .btn.alt {
-    border: 1px solid var(--dust);
     background: transparent;
     color: var(--text);
+    border: 1px solid var(--dust);
 }
 
 .btn.sm {
-    min-height: 36px;
     padding: 6px 10px;
+    min-height: 36px;
     font-size: 13px;
 }
 
@@ -143,6 +170,10 @@ main {
     background: var(--red);
     color: var(--bean);
 }
+
+/* ========================================
+   KARTU DAN DASHBOARD
+======================================== */
 
 .grid {
     display: grid;
@@ -152,23 +183,29 @@ main {
 }
 
 .card {
-    padding: 18px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
     background: var(--card);
+    border-radius: 16px;
+    padding: 18px;
     box-shadow: 0 2px 10px rgba(28, 47, 77, 0.07);
+    border: 1px solid var(--line);
 }
 
 .stat {
-    border: 0;
     background: var(--shellbg);
+    border: 0;
     color: var(--bean);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .stat {
+        color: var(--text);
+    }
 }
 
 .stat b {
     display: block;
-    margin-top: 2px;
     font-size: 24px;
+    margin-top: 2px;
 }
 
 .stat.dark {
@@ -180,6 +217,10 @@ main {
     color: var(--dust);
 }
 
+/* ========================================
+   DAFTAR BELANJA
+======================================== */
+
 .row {
     display: flex;
     align-items: center;
@@ -188,8 +229,8 @@ main {
 
 .lists {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 
 .list-card {
@@ -200,34 +241,40 @@ main {
     border-color: var(--dust);
 }
 
+/* Progress bar */
 .bar {
     height: 8px;
-    margin: 10px 0 4px;
-    overflow: hidden;
-    border-radius: 8px;
     background: var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 10px 0 4px;
 }
 
 .bar i {
     display: block;
     height: 100%;
-    border-radius: 8px;
     background: var(--red);
+    border-radius: 8px;
     transition: width 0.3s;
 }
 
+/* Label status */
 .tag {
+    font-size: 12px;
     padding: 2px 10px;
     border-radius: 20px;
     background: var(--dust);
     color: var(--prus);
-    font-size: 12px;
 }
 
 .tag.ok {
     background: var(--prus);
     color: #FFFFFF;
 }
+
+/* ========================================
+   ITEM BARANG
+======================================== */
 
 .item {
     display: flex;
@@ -247,21 +294,21 @@ main {
 }
 
 .item.done .nm {
-    opacity: 0.5;
     text-decoration: line-through;
+    opacity: 0.5;
 }
 
 .chk {
-    flex: none;
     width: 26px;
     height: 26px;
     accent-color: var(--prus);
     cursor: pointer;
+    flex: none;
 }
 
 .cat {
-    color: var(--muted);
     font-size: 12px;
+    color: var(--muted);
 }
 
 .price {
@@ -272,19 +319,24 @@ main {
 
 h3.sec {
     margin: 22px 0 8px;
-    color: var(--muted);
     font-size: 16px;
+    color: var(--muted);
 }
 
+/* Tampilan kosong */
 .empty {
+    text-align: center;
     padding: 40px 16px;
     color: var(--muted);
-    text-align: center;
 }
 
 .empty .em {
     font-size: 40px;
 }
+
+/* ========================================
+   FORMULIR
+======================================== */
 
 form .f {
     display: flex;
@@ -294,18 +346,18 @@ form .f {
 }
 
 label {
-    color: var(--muted);
     font-size: 13px;
+    color: var(--muted);
 }
 
 input,
 select,
 textarea {
-    width: 100%;
     padding: 10px 12px;
     border: 1px solid var(--dust);
     border-radius: 10px;
     background: var(--card);
+    width: 100%;
 }
 
 .two {
@@ -314,39 +366,47 @@ textarea {
     gap: 12px;
 }
 
+/* ========================================
+   MODAL
+======================================== */
+
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 50;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
-    padding: 16px;
     background: rgba(28, 47, 77, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 50;
+    overflow: auto;
 }
 
 .modal .box {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 24px;
     width: 100%;
     max-width: 460px;
     max-height: 92vh;
     overflow: auto;
-    padding: 24px;
-    border-radius: 18px;
-    background: var(--card);
 }
 
 .acts {
     display: flex;
-    justify-content: flex-end;
     gap: 10px;
+    justify-content: flex-end;
     margin-top: 8px;
 }
 
+/* ========================================
+   FILTER DAN NOTIFIKASI
+======================================== */
+
 .filters {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
+    flex-wrap: wrap;
     margin-bottom: 16px;
 }
 
@@ -360,16 +420,16 @@ textarea {
     position: fixed;
     top: calc(16px + env(safe-area-inset-top, 0px));
     right: 16px;
-    z-index: 99;
-    padding: 12px 18px;
-    border-radius: 12px;
     background: var(--prus);
     color: #FFFFFF;
+    padding: 12px 18px;
+    border-radius: 12px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    z-index: 99;
+    transition: 0.3s;
     opacity: 0;
     transform: translateY(-10px);
     pointer-events: none;
-    transition: 0.3s;
 }
 
 #toast.show {
@@ -378,43 +438,32 @@ textarea {
 }
 
 .err {
-    min-height: 0;
     color: var(--red);
     font-size: 12px;
+    min-height: 0;
 }
 
 .tw {
     overflow-x: auto;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-        --bg: #121C2C;
-        --card: #1B2A42;
-        --text: #F3ECE1;
-        --muted: #A9B6C4;
-        --line: #2D3F5B;
-        --shellbg: #3A3340;
-    }
-
-    :root:not([data-theme="light"]) .stat {
-        color: var(--text);
-    }
-}
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
 
 @media (max-width: 760px) {
     aside {
         position: fixed;
         top: auto;
-        right: 0;
         bottom: 0;
         left: 0;
-        z-index: 40;
-        flex-direction: row;
-        justify-content: space-around;
+        right: 0;
         width: 100%;
         height: auto;
+        flex-direction: row;
         padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+        z-index: 40;
+        justify-content: space-around;
     }
 
     .brand {
@@ -422,13 +471,13 @@ textarea {
     }
 
     .nav {
-        flex: 1;
         flex-direction: column;
-        align-items: center;
         gap: 0;
-        padding: 6px 8px;
         font-size: 11px;
+        padding: 6px 8px;
         text-align: center;
+        flex: 1;
+        align-items: center;
     }
 
     main {
