@@ -1,16 +1,22 @@
 :root {
-    --dust: #93AEBF;
-    --prus: #1C2F4D;
-    --shell: #F2CEAE;
-    --red: #D48D91;
-    --bean: #400D01;
+    /* Cherry Blossom Color Palette */
+    --dust: #5A86CB;
+    --prus: #6C0820;
+    --shell: #F2AEBC;
+    --red: #F2AEBC;
+    --bean: #6C0820;
 
-    --bg: #FBF7EF;
-    --card: #FFFFFF;
-    --text: #1C2F4D;
-    --muted: #6b7a8c;
-    --line: #eadfce;
-    --shellbg: #F2CEAE;
+    /* Background */
+    --bg: #F2DCDB;
+    --card: #FFF9F8;
+    --shellbg: #F2AEBC;
+
+    /* Text */
+    --text: #3D5D91;
+    --muted: #6B7FA2;
+
+    /* Border */
+    --line: #E8C4C7;
 
     box-sizing: border-box;
 }
@@ -21,14 +27,19 @@
 
 html {
     scroll-padding-top: 20px;
+    scroll-behavior: smooth;
 }
 
 body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
+
     font-family: Georgia, "Times New Roman", serif;
     line-height: 1.5;
+
+    min-height: 100vh;
+    min-height: 100dvh;
 }
 
 h1, h2, h3 {
@@ -41,42 +52,36 @@ button, input, select, textarea {
     color: inherit;
 }
 
-
-/* =====================================
-   2. DARK MODE
-===================================== */
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-        --bg: #121c2c;
-        --card: #1b2a42;
-        --text: #f3ece1;
-        --muted: #a9b6c4;
-        --line: #2d3f5b;
-        --shellbg: #3a3340;
-    }
+button {
+    -webkit-tap-highlight-color: transparent;
 }
 
 
 /* =====================================
-   3. LAYOUT UTAMA
+   2. LAYOUT UTAMA
 ===================================== */
 
 .app {
     display: flex;
     min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
 }
 
 aside {
     width: 230px;
+    min-width: 230px;
+
     background: var(--prus);
     color: #FFFFFF;
+
     padding: 24px 16px;
 
     position: sticky;
     top: 0;
 
     height: 100vh;
+    height: 100dvh;
 
     display: flex;
     flex-direction: column;
@@ -92,7 +97,8 @@ aside {
 .nav {
     background: none;
     border: 0;
-    color: var(--dust);
+
+    color: var(--shell);
 
     text-align: left;
     padding: 12px 14px;
@@ -105,18 +111,22 @@ aside {
     align-items: center;
 
     font-size: 15px;
+
+    transition: background 0.2s ease;
 }
 
 .nav.on,
 .nav:hover {
-    background: rgba(147, 174, 191, 0.18);
+    background: rgba(242, 174, 188, 0.18);
     color: #FFFFFF;
 }
 
 main {
     flex: 1;
     width: 100%;
+    min-width: 0;
     max-width: 980px;
+
     padding: 32px;
 }
 
@@ -138,7 +148,7 @@ main {
 
 
 /* =====================================
-   4. TOMBOL
+   3. TOMBOL
 ===================================== */
 
 .btn {
@@ -153,15 +163,22 @@ main {
 
     font-size: 14px;
     min-height: 44px;
+
+    transition: opacity 0.2s ease;
 }
 
 .btn:hover {
-    opacity: 0.9;
+    opacity: 0.88;
+}
+
+.btn:active {
+    transform: scale(0.98);
 }
 
 .btn.alt {
     background: transparent;
     color: var(--text);
+
     border: 1px solid var(--dust);
 }
 
@@ -178,12 +195,14 @@ main {
 
 
 /* =====================================
-   5. KARTU DAN DASHBOARD
+   4. KARTU DAN DASHBOARD
 ===================================== */
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
 
     gap: 14px;
     margin-bottom: 24px;
@@ -191,21 +210,25 @@ main {
 
 .card {
     background: var(--card);
+
     border-radius: 16px;
     padding: 18px;
 
-    box-shadow: 0 2px 10px rgba(28, 47, 77, 0.07);
+    box-shadow: 0 2px 10px rgba(108, 8, 32, 0.07);
+
     border: 1px solid var(--line);
 }
 
 .stat {
     background: var(--shellbg);
+
     border: 0;
-    color: var(--bean);
+    color: var(--prus);
 }
 
 .stat b {
     display: block;
+
     font-size: 24px;
     margin-top: 2px;
 }
@@ -216,18 +239,12 @@ main {
 }
 
 .stat.dark span {
-    color: var(--dust);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .stat {
-        color: var(--text);
-    }
+    color: var(--shell);
 }
 
 
 /* =====================================
-   6. DAFTAR BELANJA
+   5. DAFTAR BELANJA
 ===================================== */
 
 .row {
@@ -238,12 +255,16 @@ main {
 
 .lists {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(280px, 1fr));
+
     gap: 14px;
 }
 
 .list-card {
     cursor: pointer;
+    transition: border-color 0.2s ease;
 }
 
 .list-card:hover {
@@ -252,6 +273,7 @@ main {
 
 .bar {
     height: 8px;
+
     background: var(--line);
 
     border-radius: 8px;
@@ -264,10 +286,11 @@ main {
     display: block;
     height: 100%;
 
-    background: var(--red);
+    background: var(--dust);
+
     border-radius: 8px;
 
-    transition: width 0.3s;
+    transition: width 0.3s ease;
 }
 
 .tag {
@@ -275,7 +298,8 @@ main {
     padding: 2px 10px;
 
     border-radius: 20px;
-    background: var(--dust);
+
+    background: var(--shell);
     color: var(--prus);
 }
 
@@ -286,7 +310,7 @@ main {
 
 
 /* =====================================
-   7. ITEM BARANG
+   6. ITEM BARANG
 ===================================== */
 
 .item {
@@ -295,6 +319,7 @@ main {
     gap: 12px;
 
     padding: 12px 0;
+
     border-bottom: 1px solid var(--line);
 }
 
@@ -335,6 +360,7 @@ main {
 
 h3.sec {
     margin: 22px 0 8px;
+
     font-size: 16px;
     color: var(--muted);
 }
@@ -342,6 +368,7 @@ h3.sec {
 .empty {
     text-align: center;
     padding: 40px 16px;
+
     color: var(--muted);
 }
 
@@ -351,7 +378,7 @@ h3.sec {
 
 
 /* =====================================
-   8. FORM INPUT
+   7. FORM INPUT
 ===================================== */
 
 form .f {
@@ -378,32 +405,48 @@ textarea {
     border-radius: 10px;
 
     background: var(--card);
+    color: var(--text);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--shell);
+    border-color: var(--prus);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--muted);
+    opacity: 0.75;
 }
 
 .two {
     display: grid;
+
     grid-template-columns: 1fr 1fr;
+
     gap: 12px;
 }
 
 
 /* =====================================
-   9. MODAL
+   8. MODAL
 ===================================== */
 
 .modal {
     position: fixed;
     inset: 0;
 
-    background: rgba(28, 47, 77, 0.55);
+    background: rgba(108, 8, 32, 0.55);
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     padding: 16px;
-    z-index: 50;
 
+    z-index: 50;
     overflow: auto;
 }
 
@@ -430,7 +473,7 @@ textarea {
 
 
 /* =====================================
-   10. FILTER DAN NOTIFIKASI
+   9. FILTER DAN NOTIFIKASI
 ===================================== */
 
 .filters {
@@ -457,11 +500,13 @@ textarea {
     color: #FFFFFF;
 
     padding: 12px 18px;
+
     border-radius: 12px;
 
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 
     z-index: 99;
+
     transition: 0.3s;
 
     opacity: 0;
@@ -476,7 +521,7 @@ textarea {
 }
 
 .err {
-    color: var(--red);
+    color: #B33C52;
     font-size: 12px;
     min-height: 0;
 }
@@ -487,10 +532,14 @@ textarea {
 
 
 /* =====================================
-   11. RESPONSIVE TABLET DAN MOBILE
+   10. RESPONSIVE TABLET DAN MOBILE
 ===================================== */
 
 @media (max-width: 760px) {
+
+    .app {
+        display: block;
+    }
 
     aside {
         position: fixed;
@@ -501,14 +550,21 @@ textarea {
         right: 0;
 
         width: 100%;
+        min-width: 0;
+
         height: auto;
 
         flex-direction: row;
 
-        padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+        padding:
+            6px
+            6px
+            calc(6px + env(safe-area-inset-bottom, 0px));
 
         z-index: 40;
+
         justify-content: space-around;
+        align-items: center;
     }
 
     .brand {
@@ -517,18 +573,28 @@ textarea {
 
     .nav {
         flex-direction: column;
-        gap: 0;
+
+        gap: 2px;
 
         font-size: 11px;
+
         padding: 6px 8px;
 
         text-align: center;
+
         flex: 1;
         align-items: center;
+        justify-content: center;
     }
 
     main {
-        padding: 20px 16px 100px;
+        width: 100%;
+        max-width: none;
+
+        padding:
+            24px
+            16px
+            calc(110px + env(safe-area-inset-bottom, 0px));
     }
 
     .two {
@@ -538,17 +604,34 @@ textarea {
 
 
 /* =====================================
-   12. RESPONSIVE LAYAR KECIL
+   11. RESPONSIVE LAYAR KECIL
 ===================================== */
 
 @media (max-width: 480px) {
 
     main {
-        padding: 18px 12px 100px;
+        padding:
+            20px
+            12px
+            calc(110px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .top {
+        gap: 14px;
+    }
+
+    .top h1 {
+        font-size: 23px;
+    }
+
+    .top > .btn {
+        width: 100%;
     }
 
     .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
         gap: 10px;
     }
 
@@ -582,10 +665,6 @@ textarea {
         margin-left: auto;
     }
 
-    .top h1 {
-        font-size: 23px;
-    }
-
     .filters {
         flex-direction: column;
     }
@@ -596,5 +675,70 @@ textarea {
 
     .modal .box {
         padding: 18px;
+    }
+
+    .acts {
+        flex-wrap: wrap;
+    }
+
+    .acts .btn {
+        flex: 1;
+    }
+
+    .tw table {
+        min-width: 600px;
+    }
+}
+
+
+/* =====================================
+   12. RESPONSIVE LAYAR SANGAT KECIL
+===================================== */
+
+@media (max-width: 360px) {
+
+    main {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .grid {
+        gap: 8px;
+    }
+
+    .stat b {
+        font-size: 18px;
+    }
+
+    .nav {
+        font-size: 10px;
+        padding: 6px 4px;
+    }
+
+    .btn {
+        font-size: 13px;
+    }
+}
+
+
+/* =====================================
+   13. SAFE AREA DAN AKSESIBILITAS
+===================================== */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+
+    aside {
+        padding-bottom:
+            calc(6px + env(safe-area-inset-bottom));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
     }
 }
