@@ -3,48 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F2DCDB">
+    <meta name="description" content="Aplikasi daftar belanja untuk mengelola barang, anggaran, dan riwayat belanja.">
+
     <title>My Shopping List</title>
 
-    <!-- Menghubungkan file CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="app-shell">
+        <aside class="sidebar" id="sidebar">
+            <a href="#" class="brand" aria-label="My Shopping List, Dashboard" onclick="go('dash'); return false;">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10" cy="20" r="1.3" fill="currentColor"/>
+                        <circle cx="18" cy="20" r="1.3" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="brand-copy">
+                    <strong>Shopping List</strong>
+                    <small>Personal organizer</small>
+                </span>
+            </a>
 
-    <div class="app">
+            <div class="sidebar-label">MENU UTAMA</div>
 
-        <!-- Sidebar Navigasi -->
-        <aside>
-            <h2 class="brand">🛒 My Shopping List</h2>
+            <nav class="navigation" aria-label="Navigasi utama">
+                <button class="nav" data-p="dash" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
 
-            <button class="nav" data-p="dash">
-                <span>🏠</span>
-                Dashboard
-            </button>
+                <button class="nav" data-p="lists" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="5" y="4" width="14" height="17" rx="2"/>
+                        <path d="M9 4.5V3h6v1.5M9 10h6M9 14h6M9 18h3"/>
+                    </svg>
+                    <span>Daftar Belanja</span>
+                </button>
 
-            <button class="nav" data-p="lists">
-                <span>📋</span>
-                Daftar Belanja
-            </button>
+                <button class="nav" data-p="hist" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/>
+                        <path d="M3 3v5h5M12 7v5l3.5 2"/>
+                    </svg>
+                    <span>Riwayat</span>
+                </button>
+            </nav>
 
-            <button class="nav" data-p="hist">
-                <span>🕘</span>
-                Riwayat
-            </button>
+            <div class="sidebar-label settings-label">PREFERENSI</div>
+
+            <nav class="navigation" aria-label="Pengaturan">
+                <button class="nav" data-p="settings" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/>
+                        <path d="m19.4 15 .1.1 1.2.9-1.2 2.1-1.4-.5a7.9 7.9 0 0 1-1.7 1l-.2 1.5h-2.4l-.3-1.5a7.9 7.9 0 0 1-1.7-1l-1.4.5-1.2-2.1 1.2-.9a7.3 7.3 0 0 1 0-2l-1.2-.9 1.2-2.1 1.4.5a7.9 7.9 0 0 1 1.7-1l.3-1.5h2.4l.2 1.5a7.9 7.9 0 0 1 1.7 1l1.4-.5 1.2 2.1-1.2.9a7.3 7.3 0 0 1-.1 2Z" transform="translate(-1 -1)"/>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="footer-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 3 4.5 6v5.2c0 4.7 3.2 8 7.5 9.8 4.3-1.8 7.5-5.1 7.5-9.8V6L12 3Z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
+                </div>
+                <div>
+                    <strong>Belanja lebih teratur</strong>
+                    <p>Kelola kebutuhan dalam satu tempat.</p>
+                </div>
+            </div>
         </aside>
 
-        <!-- Konten Utama -->
-        <main id="view"></main>
+        <main class="main-content">
+            <header class="mobile-header">
+                <button class="icon-button" id="menuToggle" type="button" aria-label="Buka navigasi">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <span class="mobile-brand">My Shopping List</span>
+                <span class="mobile-brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 8H6"/>
+                        <circle cx="10" cy="20" r="1.3"/>
+                        <circle cx="18" cy="20" r="1.3"/>
+                    </svg>
+                </span>
+            </header>
 
+            <div id="view" class="page-content" tabindex="-1"></div>
+
+            <footer class="app-footer">
+                <span>My Shopping List</span>
+                <span>Personal shopping organizer</span>
+            </footer>
+        </main>
     </div>
 
-    <!-- Notifikasi -->
-    <div id="toast"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="modal" class="modal-root"></div>
 
-    <!-- Modal -->
-    <div id="modal"></div>
-
-    <!-- Menghubungkan file JavaScript -->
     <script src="script.js"></script>
-
 </body>
 </html>
