@@ -30,7 +30,7 @@ try {
         db = JSON.parse(raw);
     }
 } catch (e) {
-    // Data gagal dibaca
+    console.error('Gagal membaca data:', e);
 }
 
 // Menyimpan data
@@ -38,7 +38,7 @@ function save() {
     try {
         localStorage.setItem(KEY, JSON.stringify(db));
     } catch (e) {
-        // Penyimpanan gagal
+        console.error('Gagal menyimpan data:', e);
     }
 }
 
@@ -488,7 +488,7 @@ function copyList(lid) {
 function listCard(l) {
     var s = stats(l);
 
-    return '<div class="card list-card" onclick="go(\\'detail\\',\\'' + l.id + '\\')">' +
+    return '<div class="card list-card" onclick="go(\'detail\',\'' + l.id + '\')">' +
 
         '<div class="row" style="justify-content:space-between">' +
             '<h3>' + esc(l.name) + '</h3>' +
@@ -658,7 +658,7 @@ function itemRow(l, i) {
 
         '<input type="checkbox" class="chk" aria-label="Tandai ' + esc(i.name) + '"' +
             (i.done ? ' checked' : '') +
-            ' onchange="toggle(\\'' + l.id + '\\',\\'' + i.id + '\\')">' +
+            ' onchange="toggle(\'' + l.id + '\',\'' + i.id + '\')">' +
 
         '<div class="info">' +
             '<div class="nm">' + esc(i.name) + '</div>' +
@@ -675,9 +675,9 @@ function itemRow(l, i) {
         '</div>' +
 
         '<div class="row" style="gap:6px">' +
-            '<button class="btn alt sm" aria-label="Edit" onclick="itemForm(\\'' + l.id + '\\',\\'' + i.id + '\\')">✏️</button>' +
+            '<button class="btn alt sm" aria-label="Edit" onclick="itemForm(\'' + l.id + '\',\'' + i.id + '\')">✏️</button>' +
 
-            '<button class="btn alt sm" aria-label="Hapus" onclick="delItem(\\'' + l.id + '\\',\\'' + i.id + '\\')">🗑️</button>' +
+            '<button class="btn alt sm" aria-label="Hapus" onclick="delItem(\'' + l.id + '\',\'' + i.id + '\')">🗑️</button>' +
         '</div>' +
 
     '</div>';
@@ -705,7 +705,7 @@ function vDetail() {
         return i.done;
     });
 
-    return '<button class="btn alt sm" onclick="go(\\'lists\\')">← Kembali</button><br><br>' +
+    return '<button class="btn alt sm" onclick="go(\'lists\')">← Kembali</button><br><br>' +
 
         '<div class="top">' +
 
@@ -721,9 +721,9 @@ function vDetail() {
             '</div>' +
 
             '<div class="row" style="flex-wrap:wrap">' +
-                '<button class="btn alt sm" onclick="listForm(\\'' + l.id + '\\')">Edit</button>' +
-                '<button class="btn alt sm" onclick="copyList(\\'' + l.id + '\\')">Salin</button>' +
-                '<button class="btn del sm" onclick="delList(\\'' + l.id + '\\')">Hapus</button>' +
+                '<button class="btn alt sm" onclick="listForm(\'' + l.id + '\')">Edit</button>' +
+                '<button class="btn alt sm" onclick="copyList(\'' + l.id + '\')">Salin</button>' +
+                '<button class="btn del sm" onclick="delList(\'' + l.id + '\')">Hapus</button>' +
             '</div>' +
 
         '</div>' +
@@ -750,7 +750,7 @@ function vDetail() {
 
         '</div>' +
 
-        '<button class="btn" onclick="itemForm(\\'' + l.id + '\\')">＋ Tambah Barang</button>' +
+        '<button class="btn" onclick="itemForm(\'' + l.id + '\')">＋ Tambah Barang</button>' +
 
         '<h3 class="sec">Belum Masuk Troli (' + todo.length + ')</h3>' +
 
@@ -802,7 +802,7 @@ function vHist() {
         var s = stats(l);
         var ok = s.n && s.pct === 100;
 
-        return '<tr style="cursor:pointer" onclick="go(\\'detail\\',\\'' + l.id + '\\')">' +
+        return '<tr style="cursor:pointer" onclick="go(\'detail\',\'' + l.id + '\')">' +
 
             '<td>' + esc(l.name) + '</td>' +
             '<td>' + fdate(l.date) + '</td>' +
@@ -834,7 +834,7 @@ function vHist() {
 
         '<input type="date" id="ht" value="' + state.to + '" title="Sampai tanggal">' +
 
-        '<button class="btn alt" onclick="state.q=state.from=state.to=\\'\\';render()">Reset</button>' +
+        '<button class="btn alt" onclick="state.q=state.from=state.to=\'\';render()">Reset</button>' +
 
     '</div>' +
 
