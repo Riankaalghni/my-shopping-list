@@ -30,21 +30,22 @@ try {
         db = JSON.parse(raw);
     }
 } catch (e) {
-    // Data gagal dibaca.
+    // Data gagal dibaca
 }
 
-// Menyimpan data ke localStorage
+// Menyimpan data
 function save() {
     try {
         localStorage.setItem(KEY, JSON.stringify(db));
     } catch (e) {
-        // Penyimpanan gagal.
+        // Penyimpanan gagal
     }
 }
 
 // Membuat ID unik
 function uid() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    return Date.now().toString(36) +
+        Math.random().toString(36).slice(2, 7);
 }
 
 // Mengambil tanggal hari ini
@@ -58,7 +59,7 @@ function today() {
 
 
 // ========================================
-// FUNGSI BANTU
+// 2. FUNGSI BANTU
 // ========================================
 
 // Format Rupiah
@@ -81,9 +82,7 @@ function esc(s) {
 
 // Format tanggal Indonesia
 function fdate(s) {
-    if (!s) {
-        return '-';
-    }
+    if (!s) return '-';
 
     var d = new Date(s + 'T00:00:00');
 
@@ -99,7 +98,7 @@ function sub(i) {
     return i.price * i.qty;
 }
 
-// Menghitung statistik daftar belanja
+// Menghitung statistik belanja
 function stats(l) {
     var r = {
         n: l.items.length,
@@ -156,7 +155,7 @@ function go(p, id) {
 
 
 // ========================================
-// MODAL DAN KONFIRMASI
+// 3. MODAL DAN KONFIRMASI
 // ========================================
 
 function closeModal() {
@@ -170,11 +169,12 @@ function openModal(html) {
         '</div>';
 }
 
-// Konfirmasi penghapusan
+// Konfirmasi sebelum menghapus
 function confirmBox(msg, ok) {
     openModal(
         '<h3>Konfirmasi</h3>' +
         '<p>' + esc(msg) + '</p>' +
+
         '<div class="acts">' +
             '<button class="btn alt" id="cn">Batal</button>' +
             '<button class="btn del" id="cy">Hapus</button>' +
@@ -191,7 +191,7 @@ function confirmBox(msg, ok) {
 
 
 // ========================================
-// FORM DAFTAR BELANJA
+// 4. FORM DAFTAR BELANJA
 // ========================================
 
 function listForm(id) {
@@ -204,6 +204,7 @@ function listForm(id) {
 
     openModal(
         '<h3>' + (id ? 'Edit' : 'Buat') + ' Daftar Belanja</h3><br>' +
+
         '<form id="lf">' +
 
             '<div class="f">' +
@@ -260,6 +261,7 @@ function listForm(id) {
             l.note = f.note.value.trim();
 
             toast('Daftar diperbarui');
+
         } else {
             var n = {
                 id: uid(),
@@ -286,7 +288,7 @@ function listForm(id) {
 
 
 // ========================================
-// FORM BARANG
+// 5. FORM BARANG
 // ========================================
 
 function itemForm(lid, iid) {
@@ -306,6 +308,7 @@ function itemForm(lid, iid) {
 
     openModal(
         '<h3>' + (iid ? 'Edit' : 'Tambah') + ' Barang</h3><br>' +
+
         '<form id="if">' +
 
             '<div class="f">' +
@@ -316,11 +319,13 @@ function itemForm(lid, iid) {
             '<div class="f">' +
                 '<label>Kategori</label>' +
                 '<select name="cat">' +
+
                     CATS.map(function (c) {
                         return '<option' +
                             (c === it.cat ? ' selected' : '') +
                             '>' + c + '</option>';
                     }).join('') +
+
                 '</select>' +
             '</div>' +
 
@@ -357,9 +362,11 @@ function itemForm(lid, iid) {
         e.preventDefault();
 
         var f = e.target;
+
         var name = f.name.value.trim();
         var price = parseFloat(f.price.value);
         var qty = parseInt(f.qty.value, 10);
+
         var er = document.getElementById('er');
 
         if (!name) {
@@ -385,6 +392,7 @@ function itemForm(lid, iid) {
             it.note = f.note.value.trim();
 
             toast('Barang diperbarui');
+
         } else {
             l.items.push({
                 id: uid(),
@@ -407,10 +415,10 @@ function itemForm(lid, iid) {
 
 
 // ========================================
-// AKSI DATA
+// 6. AKSI DATA
 // ========================================
 
-// Menandai barang sudah atau belum masuk troli
+// Checklist barang
 function toggle(lid, iid) {
     var i = find(lid).items.filter(function (x) {
         return x.id === iid;
@@ -437,7 +445,7 @@ function delItem(lid, iid) {
     });
 }
 
-// Menghapus daftar belanja
+// Menghapus daftar
 function delList(lid) {
     confirmBox('Hapus daftar belanja beserta semua barangnya?', function () {
         db.lists = db.lists.filter(function (x) {
@@ -450,7 +458,7 @@ function delList(lid) {
     });
 }
 
-// Menyalin daftar belanja
+// Menyalin daftar
 function copyList(lid) {
     var l = find(lid);
     var n = JSON.parse(JSON.stringify(l));
@@ -473,10 +481,10 @@ function copyList(lid) {
 
 
 // ========================================
-// KOMPONEN TAMPILAN
+// 7. KOMPONEN TAMPILAN
 // ========================================
 
-// Membuat kartu daftar belanja
+// Kartu daftar belanja
 function listCard(l) {
     var s = stats(l);
 
@@ -484,6 +492,7 @@ function listCard(l) {
 
         '<div class="row" style="justify-content:space-between">' +
             '<h3>' + esc(l.name) + '</h3>' +
+
             '<span class="tag' + (s.n && s.pct === 100 ? ' ok' : '') + '">' +
                 (s.n && s.pct === 100 ? 'Selesai' : 'Berjalan') +
             '</span>' +
@@ -509,7 +518,7 @@ function listCard(l) {
     '</div>';
 }
 
-// Tampilan ketika belum ada data
+// Tampilan jika data kosong
 function emptyBox(msg) {
     return '<div class="card empty">' +
         '<div class="em">🧺</div>' +
@@ -520,7 +529,7 @@ function emptyBox(msg) {
 
 
 // ========================================
-// HALAMAN DASHBOARD
+// 8. HALAMAN DASHBOARD
 // ========================================
 
 function vDash() {
@@ -555,8 +564,10 @@ function vDash() {
         .slice(0, 3);
 
     return '<div class="top">' +
+
         '<div>' +
             '<h1>' + g + ' 👋</h1>' +
+
             '<div class="sub">' +
                 new Date().toLocaleDateString('id-ID', {
                     weekday: 'long',
@@ -568,9 +579,11 @@ function vDash() {
         '</div>' +
 
         '<button class="btn" onclick="listForm()">＋ Buat Daftar Belanja</button>' +
+
     '</div>' +
 
     '<div class="grid">' +
+
         '<div class="card stat">' +
             '<span>Daftar belanja</span>' +
             '<b>' + db.lists.length + '</b>' +
@@ -595,6 +608,7 @@ function vDash() {
             '<span>Total estimasi</span>' +
             '<b>' + rp(tot.total) + '</b>' +
         '</div>' +
+
     '</div>' +
 
     '<h2 style="margin-bottom:12px">Daftar Terbaru</h2>' +
@@ -608,7 +622,7 @@ function vDash() {
 
 
 // ========================================
-// HALAMAN DAFTAR BELANJA
+// 9. HALAMAN DAFTAR BELANJA
 // ========================================
 
 function vLists() {
@@ -617,12 +631,14 @@ function vLists() {
     });
 
     return '<div class="top">' +
+
         '<div>' +
             '<h1>Daftar Belanja</h1>' +
             '<div class="sub">Semua daftar belanja kamu</div>' +
         '</div>' +
 
         '<button class="btn" onclick="listForm()">＋ Tambah Daftar</button>' +
+
     '</div>' +
 
     (
@@ -634,7 +650,7 @@ function vLists() {
 
 
 // ========================================
-// BARIS ITEM BARANG
+// 10. BARIS ITEM BARANG
 // ========================================
 
 function itemRow(l, i) {
@@ -646,6 +662,7 @@ function itemRow(l, i) {
 
         '<div class="info">' +
             '<div class="nm">' + esc(i.name) + '</div>' +
+
             '<div class="cat">' +
                 esc(i.cat) +
                 (i.note ? ' · ' + esc(i.note) : '') +
@@ -659,6 +676,7 @@ function itemRow(l, i) {
 
         '<div class="row" style="gap:6px">' +
             '<button class="btn alt sm" aria-label="Edit" onclick="itemForm(\\'' + l.id + '\\',\\'' + i.id + '\\')">✏️</button>' +
+
             '<button class="btn alt sm" aria-label="Hapus" onclick="delItem(\\'' + l.id + '\\',\\'' + i.id + '\\')">🗑️</button>' +
         '</div>' +
 
@@ -667,7 +685,7 @@ function itemRow(l, i) {
 
 
 // ========================================
-// HALAMAN DETAIL DAFTAR
+// 11. HALAMAN DETAIL
 // ========================================
 
 function vDetail() {
@@ -690,12 +708,15 @@ function vDetail() {
     return '<button class="btn alt sm" onclick="go(\\'lists\\')">← Kembali</button><br><br>' +
 
         '<div class="top">' +
+
             '<div>' +
                 '<h1>' + esc(l.name) + '</h1>' +
+
                 '<div class="sub">' +
                     fdate(l.date) +
                     (l.store ? ' · ' + esc(l.store) : '') +
                 '</div>' +
+
                 (l.note ? '<div class="sub">📝 ' + esc(l.note) + '</div>' : '') +
             '</div>' +
 
@@ -704,9 +725,11 @@ function vDetail() {
                 '<button class="btn alt sm" onclick="copyList(\\'' + l.id + '\\')">Salin</button>' +
                 '<button class="btn del sm" onclick="delList(\\'' + l.id + '\\')">Hapus</button>' +
             '</div>' +
+
         '</div>' +
 
         '<div class="card" style="margin-bottom:16px">' +
+
             '<div class="row" style="justify-content:space-between">' +
                 '<b>Progres belanja</b>' +
                 '<b>' + s.pct + '%</b>' +
@@ -724,11 +747,13 @@ function vDetail() {
                 '<div><span class="sub">Harga di troli</span><br><b>' + rp(s.doneTotal) + '</b></div>' +
                 '<div><span class="sub">Sisa estimasi</span><br><b>' + rp(s.leftTotal) + '</b></div>' +
             '</div>' +
+
         '</div>' +
 
         '<button class="btn" onclick="itemForm(\\'' + l.id + '\\')">＋ Tambah Barang</button>' +
 
         '<h3 class="sec">Belum Masuk Troli (' + todo.length + ')</h3>' +
+
         '<div class="card">' +
             (
                 todo.length
@@ -740,6 +765,7 @@ function vDetail() {
         '</div>' +
 
         '<h3 class="sec">Sudah Masuk Troli (' + dn.length + ')</h3>' +
+
         '<div class="card">' +
             (
                 dn.length
@@ -753,7 +779,7 @@ function vDetail() {
 
 
 // ========================================
-// HALAMAN RIWAYAT BELANJA
+// 12. HALAMAN RIWAYAT
 // ========================================
 
 function vHist() {
@@ -767,6 +793,7 @@ function vHist() {
         ) &&
         (!state.from || l.date >= state.from) &&
         (!state.to || l.date <= state.to);
+
     }).sort(function (a, b) {
         return b.date.localeCompare(a.date);
     });
@@ -776,14 +803,19 @@ function vHist() {
         var ok = s.n && s.pct === 100;
 
         return '<tr style="cursor:pointer" onclick="go(\\'detail\\',\\'' + l.id + '\\')">' +
+
             '<td>' + esc(l.name) + '</td>' +
             '<td>' + fdate(l.date) + '</td>' +
             '<td>' + esc(l.store || '-') + '</td>' +
             '<td>' + s.n + '</td>' +
             '<td>' + rp(s.total) + '</td>' +
-            '<td><span class="tag' + (ok ? ' ok' : '') + '">' +
-                (ok ? 'Selesai' : s.pct + '%') +
-            '</span></td>' +
+
+            '<td>' +
+                '<span class="tag' + (ok ? ' ok' : '') + '">' +
+                    (ok ? 'Selesai' : s.pct + '%') +
+                '</span>' +
+            '</td>' +
+
         '</tr>';
     }).join('');
 
@@ -795,16 +827,23 @@ function vHist() {
     '</div>' +
 
     '<div class="filters">' +
+
         '<input id="hq" placeholder="🔍 Cari nama daftar / toko" value="' + esc(state.q) + '">' +
+
         '<input type="date" id="hf" value="' + state.from + '" title="Dari tanggal">' +
+
         '<input type="date" id="ht" value="' + state.to + '" title="Sampai tanggal">' +
+
         '<button class="btn alt" onclick="state.q=state.from=state.to=\\'\\';render()">Reset</button>' +
+
     '</div>' +
 
     (
         ls.length
             ? '<div class="card tw">' +
+
                 '<table style="width:100%;border-collapse:collapse;font-size:14px">' +
+
                     '<thead>' +
                         '<tr style="text-align:left;color:var(--muted)">' +
                             '<th>Daftar</th>' +
@@ -815,9 +854,13 @@ function vHist() {
                             '<th>Status</th>' +
                         '</tr>' +
                     '</thead>' +
+
                     '<tbody>' + rows + '</tbody>' +
+
                 '</table>' +
+
             '</div>'
+
             : '<div class="card empty">' +
                 '<div class="em">🕘</div>' +
                 '<p>Tidak ada riwayat yang cocok.</p>' +
@@ -827,7 +870,7 @@ function vHist() {
 
 
 // ========================================
-// FUNGSI RENDER DAN NAVIGASI
+// 13. RENDER DAN NAVIGASI
 // ========================================
 
 function render() {
@@ -842,7 +885,7 @@ function render() {
                 ? vDetail()
                 : vHist();
 
-    // Menandai menu yang sedang aktif
+    // Mengatur menu aktif
     document.querySelectorAll('.nav').forEach(function (b) {
         b.classList.toggle(
             'on',
@@ -881,9 +924,10 @@ function render() {
 
 
 // ========================================
-// EVENT NAVIGASI DAN INISIALISASI
+// 14. INISIALISASI APLIKASI
 // ========================================
 
+// Mengatur navigasi
 document.querySelectorAll('.nav').forEach(function (b) {
     b.onclick = function () {
         go(b.dataset.p);
